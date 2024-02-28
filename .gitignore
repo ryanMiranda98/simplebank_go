@@ -1,0 +1,7 @@
+.vscode/
+
+migrate.exe
+sqlc.exe
+README.md
+
+config.env
