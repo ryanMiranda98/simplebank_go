@@ -1,13 +1,14 @@
 package db
 
 import (
+	"context"
 	"database/sql"
 	"log"
 	"os"
 	"testing"
 
-	util "github.com/ryanMiranda98/simplebank/util"
 	_ "github.com/lib/pq"
+	util "github.com/ryanMiranda98/simplebank/util"
 )
 
 var testQueries *Queries
@@ -26,4 +27,11 @@ func TestMain(m *testing.M) {
 
 	testQueries = New(testDb)
 	os.Exit(m.Run())
+}
+
+func cleanUpDB() {
+	testQueries.db.ExecContext(context.Background(), "DELETE FROM accounts;")
+	testQueries.db.ExecContext(context.Background(), "DELETE FROM entries;")
+	testQueries.db.ExecContext(context.Background(), "DELETE FROM transfers;")
+	testQueries.db.ExecContext(context.Background(), "DELETE FROM users;")
 }

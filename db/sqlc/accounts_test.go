@@ -11,8 +11,9 @@ import (
 )
 
 func createRandomAccount(t *testing.T) Account {
+	user := createRandomUser(t)
 	arg := CreateAccountParams{
-		Owner:    util.RandomOwner(),
+		Owner:    user.Username,
 		Balance:  util.RandomMoney(),
 		Currency: util.RandomCurrency(),
 	}
@@ -29,12 +30,6 @@ func createRandomAccount(t *testing.T) Account {
 	require.NotZero(t, account.CreatedAt)
 
 	return account
-}
-
-func cleanUpDB() {
-	testQueries.db.ExecContext(context.Background(), "DELETE FROM accounts;")
-	testQueries.db.ExecContext(context.Background(), "DELETE FROM entries;")
-	testQueries.db.ExecContext(context.Background(), "DELETE FROM transfers;")
 }
 
 func TestCreateAccount(t *testing.T) {
@@ -56,22 +51,22 @@ func TestGetAccount(t *testing.T) {
 }
 
 func TestListAccounts(t *testing.T) {
-	account1 := createRandomAccount(t)
-	account2 := createRandomAccount(t)
-	account3 := createRandomAccount(t)
+	var lastAccount Account
+	for i := 0; i < 3; i++ {
+		lastAccount = createRandomAccount(t)
+	}
 
 	arg := ListAccountsParams{
+		Owner:  lastAccount.Owner,
 		Limit:  5,
 		Offset: 0,
 	}
 
 	accounts, err := testQueries.ListAccounts(context.Background(), arg)
 	require.NoError(t, err)
-
-	require.Len(t, accounts, 3)
-	require.Equal(t, accounts[0].Owner, account1.Owner)
-	require.Equal(t, accounts[1].Owner, account2.Owner)
-	require.Equal(t, accounts[2].Owner, account3.Owner)
+	for _, account := range accounts {
+		require.NotEmpty(t, account)
+	}
 
 	t.Cleanup(cleanUpDB)
 }

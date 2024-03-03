@@ -2,38 +2,58 @@ package api
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
+	val "github.com/ryanMiranda98/simplebank/api/validator"
 	db "github.com/ryanMiranda98/simplebank/db/sqlc"
-	val"github.com/ryanMiranda98/simplebank/api/validator"
+	"github.com/ryanMiranda98/simplebank/token"
+	"github.com/ryanMiranda98/simplebank/util"
 )
 
 // Server serves HTTP requests for our banking service.
 type Server struct {
-	store  db.Store
-	router *gin.Engine
+	config     util.Config
+	store      db.Store
+	tokenMaker token.Maker
+	router     *gin.Engine
 }
 
 // NewServer creates a new HTTP server and sets up routing.
-func NewServer(store db.Store) *Server {
-	router := gin.Default()
+func NewServer(config util.Config, store db.Store) (*Server, error) {
+	tokenMaker, err := token.NewPasetoMaker(config.TokenSymmetricKey)
+	if err != nil {
+		return nil, fmt.Errorf("cannot create token maker: %w", err)
+	}
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		v.RegisterValidation("currency", val.ValidCurrency)
 	}
 
 	server := &Server{
-		store:  store,
-		router: router,
+		config:     config,
+		store:      store,
+		tokenMaker: tokenMaker,
 	}
+	server.setupRouter()
+
+	return server, nil
+}
+
+func (server *Server) setupRouter() {
+	router := gin.Default()
 
 	router.GET("/", server.index)
-	router.GET("/accounts", server.getAllAccounts)
-	router.POST("/accounts", server.createAccount)
-	router.GET("/accounts/:id", server.getAccount)
-	router.POST("/transfers", server.createTransfer)
+	router.POST("/users", server.createUser)
+	router.POST("/users/login", server.loginUser)
+
+	authRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker))
+	authRoutes.GET("/accounts", server.getAllAccounts)
+	authRoutes.POST("/accounts", server.createAccount)
+	authRoutes.GET("/accounts/:id", server.getAccount)
+	authRoutes.POST("/transfers", server.createTransfer)
 
 	// Catch-all route (NOT FOUND - 404)
 	router.NoRoute(func(ctx *gin.Context) {
@@ -41,7 +61,7 @@ func NewServer(store db.Store) *Server {
 		ctx.JSON(http.StatusNotFound, errorResponse(err))
 	})
 
-	return server
+	server.router = router
 }
 
 func (server *Server) Start(address string) error {
