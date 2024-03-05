@@ -26,13 +26,18 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
         with:
           mask-password: 'true'
-      
+
+      - name: Get secrets from AWS Secrets Manager
+        uses: aws-actions/aws-secretsmanager-get-secrets@v1
+        with:
+          secret-ids: simple_bank
+
       - name: Create .env file
         run: |
           touch config.env
-          echo DB_SOURCE=${{ secrets.DB_SOURCE }} >> config.env
+          echo DB_SOURCE=${{ env.DB_SOURCE }} >> config.env
           echo DB_DRIVER=${{ secrets.DB_DRIVER }} >> config.env
-          echo TOKEN_SYMMETRIC_KEY=${{ secrets.TOKEN_SYMMETRIC_KEY }} >> config.env
+          echo TOKEN_SYMMETRIC_KEY=${{ env.TOKEN_SYMMETRIC_KEY }} >> config.env
           echo ACCESS_TOKEN_DURATION=${{ secrets.ACCESS_TOKEN_DURATION }} >> config.env
           echo SERVER_ADDRESS=${{ secrets.SERVER_ADDRESS }} >> config.env
 
