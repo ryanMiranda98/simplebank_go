@@ -9,7 +9,7 @@ FROM alpine:latest
 WORKDIR /app
 COPY --from=builder /app/main .
 COPY --from=builder /app/config.env .
-COPY --from=builder /app/migrate /usr/bin/migrate
+COPY --from=builder /app/migrate ./migrate
 COPY --from=builder /app/db/migration ./db/migration
 COPY --from=builder /app/start.sh .
 COPY --from=builder /app/wait-for.sh .
