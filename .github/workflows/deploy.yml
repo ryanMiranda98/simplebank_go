@@ -36,9 +36,9 @@ jobs:
       - name: Create .env file
         run: |
           touch config.env
-          echo DB_SOURCE=${{ env.DB_SOURCE }} >> config.env
+          echo DB_SOURCE=${{ env.SIMPLE_BANK_DB_SOURCE }} >> config.env
           echo DB_DRIVER=${{ secrets.DB_DRIVER }} >> config.env
-          echo TOKEN_SYMMETRIC_KEY=${{ env.TOKEN_SYMMETRIC_KEY }} >> config.env
+          echo TOKEN_SYMMETRIC_KEY=${{ env.SIMPLE_BANK_TOKEN_SYMMETRIC_KEY }} >> config.env
           echo ACCESS_TOKEN_DURATION=${{ secrets.ACCESS_TOKEN_DURATION }} >> config.env
           echo SERVER_ADDRESS=${{ secrets.SERVER_ADDRESS }} >> config.env
 
