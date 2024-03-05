@@ -1,4 +1,4 @@
-name: Simple Bank - Test and Build
+name: Run all unit tests
 
 on:
   push:
@@ -46,6 +46,15 @@ jobs:
 
       - name: Run migrations
         run: make migrate_up
+
+      - name: Create .env file
+        run: |
+          touch config.env
+          echo DB_SOURCE="postgres://postgres:mysecretpassword@localhost:5432/simplebank?sslmode=disable" >> config.env
+          echo DB_DRIVER=${{ secrets.DB_DRIVER }} >> config.env
+          echo TOKEN_SYMMETRIC_KEY=${{ secrets.TOKEN_SYMMETRIC_KEY }} >> config.env
+          echo ACCESS_TOKEN_DURATION=${{ secrets.ACCESS_TOKEN_DURATION }} >> config.env
+          echo SERVER_ADDRESS=${{ secrets.SERVER_ADDRESS }} >> config.env
 
       - name: Run tests
         run: make test
