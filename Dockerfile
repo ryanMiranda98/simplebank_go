@@ -14,6 +14,8 @@ COPY --from=builder /app/db/migration ./db/migration
 COPY --from=builder /app/start.sh .
 COPY --from=builder /app/wait-for.sh .
 
+RUN chmod +x /app/start.sh
+
 EXPOSE 8080
 CMD ["/app/main"]
 ENTRYPOINT [ "/app/start.sh" ]
