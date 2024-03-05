@@ -31,6 +31,7 @@ jobs:
         uses: aws-actions/aws-secretsmanager-get-secrets@v1
         with:
           secret-ids: simple_bank
+          parse-json-secrets: true
 
       - name: Create .env file
         run: |
