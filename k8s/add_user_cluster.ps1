@@ -1,0 +1,2 @@
+# Maps non-cluster creator to kubeconfig to allow them access to the cluster
+eksctl create iamidentitymapping --cluster $CLUSTER_NAME --region $REGION --arn arn:aws:iam::XXXXXXXXXXXX:user/testuser --group system:masters --no-duplicate-arns --username admin-user1
