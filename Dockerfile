@@ -13,6 +13,7 @@ COPY --from=builder /app/migrate ./migrate
 COPY --from=builder /app/db/migration ./db/migration
 COPY --from=builder /app/start.sh .
 COPY --from=builder /app/wait-for.sh .
+COPY --from=builder /app/k8s .
 
 RUN chmod +x /app/start.sh
 
