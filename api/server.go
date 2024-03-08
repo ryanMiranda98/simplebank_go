@@ -48,6 +48,7 @@ func (server *Server) setupRouter() {
 	router.GET("/", server.index)
 	router.POST("/users", server.createUser)
 	router.POST("/users/login", server.loginUser)
+	router.POST("/token/renew_access", server.RenewAccessToken)
 
 	authRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker))
 	authRoutes.GET("/accounts", server.getAllAccounts)
